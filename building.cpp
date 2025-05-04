@@ -10,6 +10,16 @@
 
 #include "building.h"
 
+/*
+-----------------------------------------------------------------------------
+Name: setup_building
+Author: Jaden Hicks
+Purpose: This function reads in an input file and parses it to fill in a 
+         building object with a vector of Elevator objects.
+Parameters: in - a input stream to the building data file
+Returns: A Building object
+-----------------------------------------------------------------------------
+*/
 Building setup_building(std::ifstream& in) {
     // read elevators
     std::vector<Elevator> e;
