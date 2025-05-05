@@ -51,13 +51,12 @@ int simStatus(std::string host){
 		
 		if (response.str() == "Simulation is not running.") {
 			status = 1;
-		} else if (response.str() == "Simulation is already running.") {
+		} else if (response.str() == "Simulation is running.") {
 			status = 2;
 		} else if (response.str() == "Simulation is complete.") {
 			status = 3;
 		}
 		
-
 	}
 	return status;
 }
@@ -113,7 +112,7 @@ Parameters: host - the host and port of the API
 Returns: None
 -----------------------------------------------------------------------------
 */
-void elevatorStatus(std::string host, const std::string elevator_id){
+std::string elevatorStatus(std::string host, const std::string elevator_id){
     CURL* curl = curl_easy_init();
 	std::string url = host + "/ElevatorStatus/" + elevator_id;
 	if (curl)
@@ -131,7 +130,10 @@ void elevatorStatus(std::string host, const std::string elevator_id){
         std::cout << url << "\tGET -> " << response.str() << std::endl;
 
         curl_easy_cleanup(curl);
+
+		return response.str();
 	}
+	return "NONE";
 }
 
 /*
@@ -164,7 +166,7 @@ Person nextInput(std::string host){
 
         std::cout << url << "\tGET -> " << response.str() << std::endl;
 		
-		//The resoonse should always be ID Start End Timestamp
+		//The response should always be ID Start End Timestamp
 		if(response.str() != "NONE"){
 			/*Copilot provided splitting function */
 			std::istringstream res(response.str());

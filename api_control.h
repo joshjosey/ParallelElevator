@@ -58,14 +58,26 @@ private:
 };
 
 
+class Assignment{
+//Purpose: This class stores an assignment of a person to an elevator determined by the scheduler.
+//Author: Jaden Hicks
+public:
+    Assignment(std::string personId, const std::string elevatorName) : personId(personId), elevatorName(elevatorName) {}
+
+    std::string getPersonId() { return personId; };
+    std::string getElevatorName() { return elevatorName; };
+private:
+    std::string personId;
+    std::string elevatorName;
+};
+
 
 //function prototypes
 int simStatus(std::string host);
 void simulationControl(std::string host, const std::string command);
-void elevatorStatus(std::string host, const std::string elevator_id);
+std::string elevatorStatus(std::string host, const std::string elevator_id);
 Person nextInput(std::string host);
 void addToElevator(std::string host, std::string person_id, std::string elevator_id);
-
 
 
 #endif

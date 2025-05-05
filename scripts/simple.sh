@@ -66,12 +66,12 @@ rm -f scheduler_os "${simulationName}_server.log" "${simulationName}_user.log" "
 make &>> make.log
 
 if test -f "scheduler_os"; then
-        #The make command finished successfully.
-        echo -e "\n\nMake successful! Booting up the Elevator Operating System."
+    #The make command finished successfully.
+    echo -e "\n\nMake successful! Booting up the Elevator Operating System."
 
-  #Execute the Elevator OS
-  python3 /lustre/work/errees/courses/cs5379/final_project/Elevator_OS/main.py --port "$PORT" -b "${inputFileDirectory}/${buildingFile}" -p "${inputFileDirectory}/${simulationName}.ppl" -r "${simulationName}_report.log" -t $simulationTime &> "${simulationName}_server.log" &
-  API_PID=$!
+    #Execute the Elevator OS
+    python3 /lustre/work/errees/courses/cs5379/final_project/Elevator_OS/main.py --port "$PORT" -b "${inputFileDirectory}/${buildingFile}" -p "${inputFileDirectory}/${simulationName}.ppl" -r "${simulationName}_report.log" -t $simulationTime &> "${simulationName}_server.log" &
+    API_PID=$!
 
 
 	#Poll the /health endpoint to determine if the API has booted up.

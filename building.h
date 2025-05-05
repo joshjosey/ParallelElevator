@@ -5,22 +5,12 @@
 #define ENVIRONMENT_H
 
 #include <vector>
+// #include <mutex>
 
-/*
-struct Elevator {
-    std::string name; // elevatorID
-    int lowest;       // lowest floor
-    int highest;      // highest floor
-    int current;      // current floor
-    int capacity;     // capacity
-
-    Elevator(const std::string& name, int lowest, int highest, int current, int capacity)
-        : name(name), lowest(lowest), highest(highest), current(current), capacity(capacity) {}
-};
-*/
+enum Dir { S, U, D, E };
 
 class Elevator {
-//Purpose: This class is used to store the elevator data returned from the API.
+//Purpose: This class is used to store the elevator data returned from the API and track the elevators.
 //Author: Jaden Hicks & Josh Josey
 public:
     Elevator() : name(""), lowest(-1), highest(-1), current(-1), capacity(-1) {}
@@ -29,35 +19,30 @@ public:
         : name(name), lowest(lowest), highest(highest), current(current), capacity(capacity) {}
 
     void print(){
-        std::cout << name << " | Lowest = " << lowest << " | Highest = " << highest << " | Current = " << current << " | Capactiy " << capacity << std::endl;
+        std::cout << name << " | Lowest = " << lowest << " | Highest = " << highest << " | Current = " << current << " | Direction " << direction << " | NumPeople " << numPeople << " | Capactiy " << capacity << std::endl;
     }
 
     std::string getName() const { return name; }
     int getLowest() const { return lowest; }
     int getHighest() const { return highest; }
     int getCurrent() const { return current; }
+    Dir getDirection() const { return direction; }
+    int getNumPeople() const { return numPeople; }
     int getCapactiy() const { return capacity; }
+
+    int updateStatus(const std::string status);
 
 private:
     std::string name; // elevatorID
     int lowest;       // lowest floor
     int highest;      // highest floor
     int current;      // current floor
+    Dir direction;    // direction
+    int numPeople;    // number of people in elevator
     int capacity;     // capacity
+
+    // std::mutex lock;
 };
-
-/*
-struct Building {
-    std::vector<Elevator> elevators;
-
-    Building(std::vector<Elevator> elevators)
-        : elevators(std::move(elevators)) {}
-
-    int num_elevators() const {
-        return static_cast<int>(elevators.size());
-    }
-};
-*/
 
 class Building {
 //Purpose: This class is used to store the building data returned from the API.
@@ -73,11 +58,11 @@ private:
     //std::vector<Elevator> elevators;
 };
 
-/* setup_building
+/* setupBuilding
     - reads building configuration from inp
     - builds building_t and saves to *b
     - returns 0 if successful, 1 otherwise
 */
-Building setup_building(std::ifstream& inp);
+Building setupBuilding(std::ifstream& inp);
 
 #endif
