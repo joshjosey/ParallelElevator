@@ -60,10 +60,12 @@ private:
 
 
 //function prototypes
+int simStatus(std::string host);
 void simulationControl(std::string host, const std::string command);
 void elevatorStatus(std::string host, const std::string elevator_id);
 Person nextInput(std::string host);
 void addToElevator(std::string host, std::string person_id, std::string elevator_id);
+
 
 
 #endif
