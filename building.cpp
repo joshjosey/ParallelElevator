@@ -19,19 +19,19 @@ Parameters: str - direction string
 Returns: Dir
 -----------------------------------------------------------------------------
 */
-Dir getDirFromStr(const std::string str) {
-    std::cout << "DEBUG: Received input = [" << str << "]" << std::endl;
-    if (str[0] == 'S')
-        return S;
-    else if (str[0] == 'U')
-        return U;
-    else if (str[0] == 'D')
-        return D;
-    else {
-        std::cout << "ERROR: Invalid Dir: " << str << std::endl;
-        return E;
-    }
-}
+// Dir getDirFromStr(const std::string str) {
+//     std::cout << "DEBUG: Received input = [" << str << "]" << std::endl;
+//     if (str[0] == 'S')
+//         return S;
+//     else if (str[0] == 'U')
+//         return U;
+//     else if (str[0] == 'D')
+//         return D;
+//     else {
+//         std::cout << "ERROR: Invalid Dir: " << str << std::endl;
+//         return E;
+//     }
+// }
 
 /*
 -----------------------------------------------------------------------------
@@ -43,26 +43,26 @@ Parameters: status - string response from ElevatorStatus call
 Returns: 0 = success;  1 = failure
 -----------------------------------------------------------------------------
 */
-int Elevator::updateStatus(const std::string status) {
-    std::istringstream iss(status);
-    std::string elevatorId, current, dir, numPeople, remainingCapacity;
-    if (!std::getline(iss, elevatorId, '|') ||
-        !std::getline(iss, current, '|') ||
-        !std::getline(iss, dir, '|') ||
-        !std::getline(iss, numPeople, '|') ||
-        !std::getline(iss, remainingCapacity, '|')) {
-        std::cout << "ERROR: Invalid status: " << status << "\n";
-        return 1;
-    }
-    std::cout << dir << std::endl;
-    current = std::stoi(current);
-    direction = getDirFromStr(dir);
-    std::cout << direction << std::endl;
-    numPeople = std::stoi(numPeople);
-    if (direction = E)
-        return 1;
-    return 0;
-}
+// int Elevator::updateStatus(const std::string status) {
+//     std::istringstream iss(status);
+//     std::string elevatorId, current, dir, numPeople, remainingCapacity;
+//     if (!std::getline(iss, elevatorId, '|') ||
+//         !std::getline(iss, current, '|') ||
+//         !std::getline(iss, dir, '|') ||
+//         !std::getline(iss, numPeople, '|') ||
+//         !std::getline(iss, remainingCapacity, '|')) {
+//         std::cout << "ERROR: Invalid status: " << status << "\n";
+//         return 1;
+//     }
+//     std::cout << dir << std::endl;
+//     current = std::stoi(current);
+//     direction = getDirFromStr(dir);
+//     std::cout << direction << std::endl;
+//     numPeople = std::stoi(numPeople);
+//     if (direction = E)
+//         return 1;
+//     return 0;
+// }
 
 /*
 -----------------------------------------------------------------------------

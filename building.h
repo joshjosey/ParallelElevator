@@ -4,10 +4,14 @@
 #ifndef ENVIRONMENT_H
 #define ENVIRONMENT_H
 
+#include <string>
+#include <sstream>
 #include <vector>
 // #include <mutex>
 
-enum Dir { S, U, D, E };
+// enum Dir { S, U, D, E };
+
+// Dir getDirFromStr(const std::string str);
 
 class Elevator {
 //Purpose: This class is used to store the elevator data returned from the API and track the elevators.
@@ -26,18 +30,37 @@ public:
     int getLowest() const { return lowest; }
     int getHighest() const { return highest; }
     int getCurrent() const { return current; }
-    Dir getDirection() const { return direction; }
+    char getDirection() const { return direction; }
     int getNumPeople() const { return numPeople; }
     int getCapactiy() const { return capacity; }
 
-    int updateStatus(const std::string status);
+    int updateStatus(const std::string status) {
+        std::istringstream iss(status);
+        std::string elevatorId, current, dir, numP, remainingCapacity;
+        if (!std::getline(iss, elevatorId, '|') ||
+            !std::getline(iss, current, '|') ||
+            !std::getline(iss, dir, '|') ||
+            !std::getline(iss, numP, '|') ||
+            !std::getline(iss, remainingCapacity, '|')) {
+            std::cout << "ERROR: Invalid status: " << status << "\n";
+            return 1;
+        }
+        current = std::stoi(current);
+        direction = dir[0];
+        std::cout << numP << std::endl;
+        numPeople = std::stoi(numP);
+        std::cout << numPeople << std::endl;
+        if (direction == 'E')
+            return 1;
+        return 0;
+    }
 
 private:
     std::string name; // elevatorID
     int lowest;       // lowest floor
     int highest;      // highest floor
     int current;      // current floor
-    Dir direction;    // direction
+    char direction;    // direction
     int numPeople;    // number of people in elevator
     int capacity;     // capacity
 

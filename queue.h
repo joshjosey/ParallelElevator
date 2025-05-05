@@ -11,7 +11,6 @@
 template <typename T>
 class ThreadSafeDeque {
 // Wrapper for a thread safe queue
-    ThreadSafeQueue( )
     private:
         std::deque<T> queue;
         std::mutex mtx;
@@ -25,8 +24,8 @@ class ThreadSafeDeque {
         bool pop(T& val) {
             std::lock_guard<std::mutex> lock(mtx);
             if (queue.empty()) return false;
-            val = dq.front();
-            dq.pop_front();
+            val = queue.front();
+            queue.pop_front();
             return true;
         }
     };

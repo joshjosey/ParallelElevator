@@ -24,21 +24,22 @@ C++ Version : 11 or higher
 #include <atomic>
 #include <curl/curl.h>
 #include <chrono>
+#include <deque>
 
 #include "building.h"
 #include "api_control.h"
-#include "queue.h"
+// #include "queue.h"
 
 //Function Prototypes
-void inputThread();
-void schedulerThread();
-void outputThread();
+void *inputThread(void *);
+void *schedulerThread(void *);
+void *outputThread(void *);
 
 //Global Varibales
 std::string host;
 Building building;
-ThreadSafeDeque<Person> people_q;
-ThreadSafeDeque<Assignment> assignment_q;
+std::deque<Person> people_q;
+std::deque<Assignment> assignment_q;
 //Synchonization Variables
 std::atomic<bool> sim_complete_flag(false);
 
@@ -116,18 +117,12 @@ int main(int argc, char *argv[]) {
 void *inputThread(void *arg){
     int status = simStatus(host);
     while(true){
-        //check the status of an elevator
-        for (int i=0; i<building.numElevators(); i++) {
-            int updateStatus =  building.elevators[i].updateStatus(elevatorStatus(host, building.elevators[i].getName()));
-            std::cout << "Update elevator status: " << building.elevators[i].getName() << "  ret = " << updateStatus << std::endl;
-            building.elevators[i].print();
-        }
         //Get the next person waiting
         Person next = nextInput(host);
         //if there is no one waiting to be added then sleep
         if (next.getId() != "NONE") {
             //DEBUGnext.print();
-            people_q.push(next);
+            people_q.push_back(next);
         } else {
             //check if the simulation is complete
             status = simStatus(host);
