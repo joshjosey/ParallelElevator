@@ -19,17 +19,57 @@ C++ Version : 11 or higher
 #include "api_control.h"
 
 
+/*
+-----------------------------------------------------------------------------
+Name: simulationStatus
+Author: Josh Josey
+Purpose: This function sends either a GET request to check the simulation
+		 status
+Parameters: host - the host and port of the API
+Returns: An integer where 1 = simulation is not runnning
+						  2 = simulation currently running
+						  3 = simulation complete
+-----------------------------------------------------------------------------
+*/
+int simStatus(std::string host){
+    CURL* curl = curl_easy_init();
+	std::string url = host + "/Simulation/check";
+	int status = -1;
+	if (curl)
+	{
+		ResponseBuffer response;
+
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, ResponseBuffer::writeCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
+		curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "GET");
+
+        curl_easy_perform(curl);
+		std::cout << url << "\tGET -> " << response.str() << std::endl;
+
+        curl_easy_cleanup(curl);
+		
+		if (response.str() == "Simulation is not running.") {
+			status = 1;
+		} else if (response.str() == "Simulation is already running.") {
+			status = 2;
+		} else if (response.str() == "Simulation is complete.") {
+			status = 3;
+		}
+		
+
+	}
+	return status;
+}
 
 /*
 -----------------------------------------------------------------------------
 Name: simulationControl
 Author: Josh Josey
-Purpose: This function sends either a GET request to check the simulation
-		 status or a PUT request to change the simulation status
+Purpose: This function sends  a PUT request to change the simulation status
 Parameters: host - the host and port of the API
             command - "start" = start the simulation (PUT)
 					  "stop" = stop the simulation (PUT) 
-					  "check" = check the status (GET)
 Returns: None
 -----------------------------------------------------------------------------
 */
@@ -107,9 +147,9 @@ Returns: A person object initialized with the API data
 Person nextInput(std::string host){
 	CURL* curl = curl_easy_init();
 	std::string url = host + "/NextInput";
-	std::string id = "";
-	std::string start_floor = "";
-	std::string end_floor = "";
+	std::string id = "NONE";
+	std::string start_floor = "-1";
+	std::string end_floor = "-1";
 	if (curl)
 	{
 		ResponseBuffer response;
@@ -125,13 +165,13 @@ Person nextInput(std::string host){
         std::cout << url << "\tGET -> " << response.str() << std::endl;
 		
 		//The resoonse should always be ID Start End Timestamp
-		/*Copilot provided splitting function */
-		std::istringstream res(response.str());
-		std::getline(res, id, '|');
-		std::getline(res, start_floor, '|');
-		std::getline(res, end_floor);
-		
-
+		if(response.str() != "NONE"){
+			/*Copilot provided splitting function */
+			std::istringstream res(response.str());
+			std::getline(res, id, '|');
+			std::getline(res, start_floor, '|');
+			std::getline(res, end_floor);
+		}
 		curl_easy_cleanup(curl);
 	}
 	return Person(id, stoi(start_floor), stoi(end_floor));
