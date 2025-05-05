@@ -31,15 +31,17 @@ C++ Version : 11 or higher
 // #include "queue.h"
 
 //Function Prototypes
-void *inputThread(void *);
-void *schedulerThread(void *);
-void *outputThread(void *);
+void inputThread();
+void schedulerThread();
+void outputThread();
+bool inRange(Elevator, Person);
 
-//Global Varibales
+//Global Variables
 std::string host;
 Building building;
 std::deque<Person> people_q;
-std::deque<Assignment> assignment_q;
+std::deque<std::pair<std::string,std::string>> output_q; //always push as (person_id, elevator_id)
+
 //Synchonization Variables
 std::atomic<bool> sim_complete_flag(false);
 
@@ -86,22 +88,22 @@ int main(int argc, char *argv[]) {
         exit(1);
     };
 
-    // TESTS
-	//check the status of an elevator
-    for (int i=0; i<building.numElevators(); i++)
-        elevatorStatus(host, building.elevators[i].getName());
-    //see if you can get the next person
-    Person test(nextInput(host));
-    test.print();
-    //see if you can add someone to an elevator
-    addToElevator(host, test.getId(), building.elevators[0].getName());
-    std::this_thread::sleep_for(std::chrono::seconds(2));
-	//check the status of an elevator
-    for (int i=0; i<building.numElevators(); i++)
-        elevatorStatus(host, building.elevators[i].getName());
+    // // TESTS
+	// //check the status of an elevator
+    // for (int i=0; i<building.numElevators(); i++)
+    //     elevatorStatus(host, building.elevators[i].getName());
+    // //see if you can get the next person
+    // Person test(nextInput(host));
+    // test.print();
+    // //see if you can add someone to an elevator
+    // addToElevator(host, test.getId(), building.elevators[0].getName());
+    // std::this_thread::sleep_for(std::chrono::seconds(2));
+	// //check the status of an elevator
+    // for (int i=0; i<building.numElevators(); i++)
+    //     elevatorStatus(host, building.elevators[i].getName());
     
     //start input thread
-    inputThread(NULL);
+    inputThread();
 
     //ensure the API stopped
 	simStatus(host);
@@ -114,9 +116,14 @@ int main(int argc, char *argv[]) {
 }
 
 
-void *inputThread(void *arg){
+void inputThread(){
     int status = simStatus(host);
     while(true){
+        for (auto &e : building.elevators) {
+            std::string status = elevatorStatus(host, e.getName());
+            e.updateStatus(status);
+            e.print();
+        }
         //Get the next person waiting
         Person next = nextInput(host);
         //if there is no one waiting to be added then sleep
@@ -129,7 +136,7 @@ void *inputThread(void *arg){
 
             if(status == 3){
                 sim_complete_flag.store(true);
-                return NULL;
+                return;
             }
             //DEBUGstd::cout << "INPUT: Nobody waiting to board an elevator, going to sleep" << std::endl;
             std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -137,10 +144,50 @@ void *inputThread(void *arg){
     }
 }
 
-void *schedulerThread(void *arg) {
-    return NULL;
+void schedulerThread() {
+    while(true){
+        //Update the elevator status before assignment
+        for(auto& e : building.elevators){
+            std::string status = elevatorStatus(host, e.getName());
+            e.updateStatus(status);
+        }
+        //WHILE PERSON QUEUE IS NOT EMPTY
+        {
+            Person p;
+            //Check each elevator to find the best one
+            for(int i = 0; i < building.numElevators(); i++){
+                int min = 0;
+                std::string status = elevatorStatus(host, building.elevators[i].getName());
+                building.elevators[i].updateStatus(status);
+
+                //check if it is in range and has capactiy
+                if( !building.elevators[i].inRange(p.getStart(), p.getEnd()) || (building.elevators[i].getRemainingCapacity() == 0) ){
+                    continue;
+                }
+                //Calculate that elevators score
+                
+            }
+            //Enqueue the best elevator OR requeue the person
+            //decrement rem cap
+        }
+        //SIGNAL THE OTHER THREADS AND GO TO SLEEP
+        if(sim_complete_flag.load() == true ){
+            return;
+        }
+    }
 }
 
-void *outputThread(void *arg) {
-    return NULL;
+void outputThread() {
+    while(true) {
+        std::string p_id = output_q.front().first;
+        std::string e_id = output_q.front().second;
+        output_q.pop_front();
+        
+        addToElevator(host, p_id, e_id);
+
+        if (sim_complete_flag.load() == true) {
+            return;
+        }
+    }
 }
+
