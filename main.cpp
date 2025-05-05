@@ -17,13 +17,29 @@ C++ Version : 11 or higher
 */
 #include <iostream>
 #include <fstream>
+#include <vector>
+#include <deque>
+#include <chrono>
+#include <thread>
+#include <atomic>
 #include <curl/curl.h>
 #include "building.h"
 #include "api_control.h"
 
+//Function Prototypes
+void inputThread();
+void schedulerThread();
+void outputThread();
+
+//Global Varibales
+std::string host;
+std::deque<Person> people_q;
+//Synchonization Variables
+std::atomic<bool> sim_complete_flag(false);
+
 int main(int argc, char *argv[]) {
     if (argc != 3) {
-        std::cerr << "Usage: " << argv[0] << " <path to input file> <port>" << std::endl;
+        std::cerr << "ERROR: Not enough arguments\nUsage: " << argv[0] << " <path to input file> <port>" << std::endl;
         return 1;
     }
 
@@ -55,29 +71,62 @@ int main(int argc, char *argv[]) {
     
     std::cout << "Starting Elevator OS..." << std::endl;
     std::string port = argv[2];
-    std::string host = "http://localhost:" + port;
+    host = "http://localhost:" + port;
     std::cout << "Host: " << host << std::endl;
-    // initialize curl
+    //initialize curl
     curl_global_init(CURL_GLOBAL_ALL);
 
     //ensure the api is running
-	simulationControl(host,"check");
+	simStatus(host);
 	simulationControl(host,"start");
-	simulationControl(host,"check");
+    simStatus(host);
 
 	//check the status of an elevator
-	elevatorStatus(host,"HotelBayA");
+    elevatorStatus(host, building.elevators[0].getName());
     //see if you can get the next person
     Person test(nextInput(host));
     test.print();
     //see if you can add someone to an elevator
-    addToElevator(host, test.getId(), "HotelBayA");
+    addToElevator(host, test.getId(), building.elevators[0].getName());
+    inputThread();
     // ensure the API stopped
-	simulationControl(host,"check");
+	simStatus(host);
 	simulationControl(host,"stop");
-	simulationControl(host,"check");
+	simStatus(host);
 
 	//cleanup curl
     curl_global_cleanup();
     return 0;
+}
+
+
+void inputThread(){
+    int status = simStatus(host);
+    while(true){
+        //Get the next person waiting
+        Person next = nextInput(host);
+        //if there is no one waiting to be added then sleep
+        if(next.getId() != "NONE"){
+            //DEBUGnext.print();
+            people_q.push_back(next);
+        }else{
+            //check if the simulation is complete
+            status = simStatus(host);
+
+            if(status == 3){
+                sim_complete_flag.store(true);
+                return;
+            }
+            //DEBUGstd::cout << "INPUT: Nobody waiting to board an elevator, going to sleep" << std::endl;
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
+    }
+}
+
+void schedulerThread(){
+
+}
+
+void outputThread(){
+
 }
