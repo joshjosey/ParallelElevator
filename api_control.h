@@ -41,8 +41,8 @@ class Person{
 //Purpose: This class is used to store the person data returned from the API.
 //Author: Josh Josey
 public:
-    Person() : id(""), start(-1), end(-1) {}
-    Person(const std::string id, int start, int end) : id(id), start(start), end(end) {}
+    Person() : id(""), start(-1), end(-1), onElevator(false) {}
+    Person(const std::string id, int start, int end) : id(id), start(start), end(end), onElevator(false) {}
     /*add more classes here as needed*/
     void print() {
         std::cout << id << " | start = " << start << " | end = " << end << std::endl;
@@ -55,6 +55,7 @@ private:
     std::string id;
     int start;
     int end;
+    bool onElevator;
 };
 
 

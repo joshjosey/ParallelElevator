@@ -31,9 +31,20 @@ int Elevator::updateStatus(const std::string status) {
         std::cout << "ERROR: Invalid status: " << status << "\n";
         return 1;
     }
-    current = std::stoi(cur);
-    direction = dir[0];
+    int newCur = std::stoi(cur);
+    char newDir = dir[0];
     int newNumPeople = std::stoi(numP);
+    if (newCur != current || newDir != direction) { // elevator moved or changing direction
+        if (newCur == current+1 || newCur == current-1) { // elevator moved one floor
+
+        } else { // elevator moved multiple floors
+
+        }
+        int diffPeople = newNumPeople - numPeople;
+
+    } else if () {
+
+    }
     if (newNumPeople < numPeople) { // check if people got off elevator
         remainingCapacity += numPeople - newNumPeople; // increase remaining capacity
         if (remainingCapacity > capacity) {

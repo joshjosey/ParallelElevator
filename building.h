@@ -8,6 +8,8 @@
 #include <sstream>
 #include <vector>
 
+#include "api_control.h"
+
 class Elevator {
 //Purpose: This class is used to store the elevator data returned from the API and track the elevators.
 //Author: Jaden Hicks & Josh Josey
@@ -30,8 +32,9 @@ public:
     char getDirection() const { return direction; }
     int getNumPeople() const { return numPeople; }
     int getRemainingCapacity() const { return remainingCapacity; }
-    int getCapactiy() const { return capacity; }
+    int getCapacity() const { return capacity; }
 
+    void addPerson(Person p) { people.emplace_back(p); }
     int updateStatus(const std::string status);
     void decrementRemainingCapacity() { if (remainingCapacity > 0) remainingCapacity--; }
     bool inRange(int start, int end);
@@ -43,6 +46,7 @@ private:
     int current;            // current floor
     char direction;         // direction
     int numPeople;          // number of people in elevator
+    std::vector<Person> people;
     int remainingCapacity;  // local tracker of remaining capacity, including people already on elevator and assigned to it (not updated by API)
     int capacity;           // capacity
 };

@@ -96,7 +96,7 @@ void simulationControl(std::string host, const std::string command){
 /*
 -----------------------------------------------------------------------------
 Name: elevatorStatus
-Author: Josh Josey
+Author: Josh Josey & Jaden Hicks
 Purpose: This function sends either GET request to check and print the 
 		 status of a specific elevator
 Parameters: host - the host and port of the API

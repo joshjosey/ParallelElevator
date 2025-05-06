@@ -128,11 +128,6 @@ int main(int argc, char *argv[]) {
 void inputThread(){
     int status = simStatus(host);
     while(true){
-        //for (auto &e : building.elevators) {
-        //    std::string status = elevatorStatus(host, e.getName());
-        //    e.updateStatus(status);
-            //e.print();
-        //}
         //Get the next person waiting
         Person next = nextInput(host);
 
@@ -195,7 +190,7 @@ void schedulerThread() {
             int min = 9999;
             int min_idx = -1;
             // Update the elevator status before assignment
-            std::cout << "SCHEDULER: comparing elevators for " << p.getId() << " ( " << p.getStart() << " -> " << p.getEnd() << ") " << std::endl;
+            std::cout << "SCHEDULER: comparing elevators for " << p.getId() << " (" << p.getStart() << " -> " << p.getEnd() << ") " << std::endl;
             for(int i = 0; i < building.numElevators(); i++){
                 int score = 0;
                 char dir_to_person = 'S';
@@ -205,7 +200,7 @@ void schedulerThread() {
                     std::cout << "\tSCHEDULER: " << building.elevators[i].getName() << " cannot reach desired floor" << std::endl;
                     continue;
                 }
-                if( building.elevators[i].getCapactiy() == 0){
+                if( building.elevators[i].getRemainingCapacity() == 0){
                     std::cout << "\tSCHEDULER: " << building.elevators[i].getName() << " has no space" << std::endl;
                     continue;
                 }
@@ -238,8 +233,8 @@ void schedulerThread() {
                     }
                 }
 
-                //Increment the score for each passenger
-                score += abs(building.elevators[i].getCapactiy() - building.elevators[i].getRemainingCapacity())*2;
+                //Increment the score for each passenger assigned to / on the elevator
+                score += abs(building.elevators[i].getCapacity() - building.elevators[i].getRemainingCapacity())*2;
 
                 //check if it has the lowest score
                 if(score < min){
@@ -251,6 +246,8 @@ void schedulerThread() {
             //Enqueue the best elevator OR requeue the person
             if(min_idx >= 0){
                 output_q.emplace_back(p.getId(), building.elevators[min_idx].getName());
+                // add person to elevator object
+                building.elevators[min_idx].addPerson(p);
                 //decrement the remaining capacity of the elevator
                 building.elevators[min_idx].decrementRemainingCapacity();
                 std::cout << "SCHEDULER: Queueing " << output_q.back().first << " ( " << p.getStart() << " -> " << p.getEnd() << ") " 
