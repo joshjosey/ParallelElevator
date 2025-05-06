@@ -7,9 +7,28 @@
 #include <vector>
 #include <algorithm>
 #include <string>
-
 #include "building.h"
 
+/*Get functions for the elevator*/
+std::string Elevator::getName() const { return this->name; }
+int Elevator::getLowestFloor() const { return this->lowest; }
+int Elevator::getHighestFloor() const { return this->highest; }
+int Elevator::getCurrentFloor() const { return this->current; }
+char Elevator::getDirection() const { return this->direction; }
+int Elevator::getNumPeople() const { return numPeople; }
+int Elevator::getRemainingCapacity() const { return remainingCapacity; }
+int Elevator::getMaxCapactiy() const { return capacity; }
+
+
+
+
+
+bool Elevator::empty() { return numPeople == 0; }
+void Elevator::print(){
+    std::cout << name << " | Lowest = " << lowest << " | Highest = " << highest << " | Current = " << current
+              << " | Direction " << direction << " | NumPeople " << numPeople << " | RemainingCapacitiy "
+              << remainingCapacity << " | Capacity " << capacity << std::endl;
+}
 /*
 -----------------------------------------------------------------------------
 Name: updateStatus

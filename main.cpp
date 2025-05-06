@@ -36,7 +36,7 @@ C++ Version : 11 or higher
 void inputThread();
 void schedulerThread();
 void outputThread();
-bool inRange(Elevator, Person);
+int calculateScore(Elevator e, Person p);
 
 //Global Variables
 std::string host;
@@ -93,29 +93,16 @@ int main(int argc, char *argv[]) {
         exit(1);
     };
 
-    // // TESTS
-	// //check the status of an elevator
-    // for (int i=0; i<building.numElevators(); i++)
-    //     elevatorStatus(host, building.elevators[i].getName());
-    // //see if you can get the next person
-    // Person test(nextInput(host));
-    // test.print();
-    // //see if you can add someone to an elevator
-    // addToElevator(host, test.getId(), building.elevators[0].getName());
-    // std::this_thread::sleep_for(std::chrono::seconds(2));
-	// //check the status of an elevator
-    // for (int i=0; i<building.numElevators(); i++)
-    //     elevatorStatus(host, building.elevators[i].getName());
-    
-    //start input thread
+    //start the threads
     std::thread inp_thread(inputThread);
     std::thread schedule_thread(schedulerThread);
     std::thread outp_thread(outputThread);
     inp_thread.join();
     schedule_thread.join();
     outp_thread.join();
+
+
     // ensure the API stopped
-    simStatus(host);
 	simulationControl(host,"stop");
 	simStatus(host);
 
@@ -190,12 +177,13 @@ void schedulerThread() {
         for (auto &e : building.elevators)
         {
             std::string status = elevatorStatus(host, e.getName());
-            std::cout << "\tSCHEDULER: " << status << std::endl;
             e.updateStatus(status);
+            std::cout << "\tSCHEDULER: ";
+            e.print();
         }
-        std::cout << "SCHEDULER: updating elevators" << std::endl;
 
-        //WHILE PERSON QUEUE IS NOT EMPTY
+        //Assign each person to an elevator
+        std::cout << "SCHEDULER: assigning people to elevators" << std::endl;
         while(!people_q.empty()){
             Person p(people_q.front());
             people_q.pop_front();
@@ -204,39 +192,18 @@ void schedulerThread() {
             // Update the elevator status before assignment
             std::cout << "SCHEDULER: comparing elevators for " << p.getId() << " ( " << p.getStart() << " -> " << p.getEnd() << ") " << std::endl;
             for(int i = 0; i < building.numElevators(); i++){
-                int score = 0, distance_penalty = 0, start_direction_penalty = 0, end_direction_penalty = 0, passenger_penalty = 0;
-                char dir_to_person = 'S';
-
                 //check if it is in range and has capactiy
                 if ( !building.elevators[i].inRange(p.getStart(), p.getEnd()) ){
                     std::cout << "\tSCHEDULER: " << building.elevators[i].getName() << " cannot reach desired floor" << std::endl;
                     continue;
                 }
-                if ( building.elevators[i].getRemainingCapacity() == 0){
+                if ( building.elevators[i].getNumPeople() == building.elevators[i].getMaxCapactiy() ){
                     std::cout << "\tSCHEDULER: " << building.elevators[i].getName() << " has no space" << std::endl;
                     continue;
                 }
 
-                //Get the distance to the start penalty
-                distance_penalty = abs(building.elevators[i].getCurrentFloor() - p.getStart());
-
-                //Get the penalty for not going toward the start direction (half the maximum distance)
-                if(!building.elevators[i].checkDirection(p.getStart())){
-                    start_direction_penalty = (building.elevators[i].getHighest() - building.elevators[i].getLowest()) / 2;
-                }
-
-                //Get the penalty for not going toward the end direction (half the maximum distance)
-                if(!building.elevators[i].checkDirection(p.getEnd())){
-                    end_direction_penalty = (building.elevators[i].getHighest() - building.elevators[i].getLowest()) / 2;
-                }
-
-                //Get the penalty for having passengers
-                if(!building.elevators[i].empty()){
-                    passenger_penalty = 7 + (building.elevators[i].getMaxCapactiy() - building.elevators[i].getRemainingCapacity()) * 2;
-                }
-
                 //Add together the penalties & rewards to find the score
-                score = distance_penalty + start_direction_penalty + end_direction_penalty + passenger_penalty;
+                int score = calculateScore(building.elevators[i], p);
                 std::cout << "\tSCHEDULER: " << building.elevators[i].getName() << " has a score of " << score << std::endl;
 
                 //See if it is the lowest score
@@ -298,4 +265,21 @@ void outputThread() {
             io_cv.wait(lock, [](){ return !output_q.empty() || sim_complete_flag.load(); });
         }
     }
+}
+
+/*
+Authors: Josh Josey, refactored by copilot
+*/
+int calculateScore(Elevator e, Person p) {
+    int max_range = e.getHighestFloor() - e.getLowestFloor();
+
+    int distance_penalty = abs(e.getCurrentFloor() - p.getStart());
+
+    int start_direction_penalty = !e.checkDirection(p.getStart()) ? (max_range) / 2 : 0;
+
+    int end_direction_penalty = !e.checkDirection(p.getEnd()) ? (max_range) / 2 : 0;
+
+    int passenger_penalty = !e.empty() ? (e.getMaxCapactiy() - e.getRemainingCapacity()) * 5 : 0;
+
+    return distance_penalty + start_direction_penalty + end_direction_penalty + passenger_penalty;
 }
