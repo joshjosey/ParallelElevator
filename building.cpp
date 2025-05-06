@@ -34,13 +34,24 @@ int Elevator::updateStatus(const std::string status) {
     int newCur = std::stoi(cur);
     char newDir = dir[0];
     int newNumPeople = std::stoi(numP);
-    if (newCur != current || newDir != direction) { // elevator moved or changing direction
-        if (newCur == current+1 || newCur == current-1) { // elevator moved one floor
-
-        } else { // elevator moved multiple floors
+    if (newCur != current) { // elevator moved or changing direction
+        int minFloor = std::min(newCur, current);
+        int maxFloor = (minFloor == newCur) ? current : newCur;
+        int diffPeople = newNumPeople - numPeople;
+        std::vector<int> peopleGettingOn;
+        std::vector<int> peopleGettingOff;
+        for (auto &p : people) {
+            if (p.getStart() >= minFloor && p.getEnd() <= maxFloor) {
+                if (!p.onElevator())
+                    peopleGettingOn.emplace_back(p.getId());
+                else
+                    peopleGettingOff.emplace_back(p.getId());
+            }
+        }
+        int predictedDiffPeople = static_cast<int>(peopleGettingOn.size()) - static_cast<int>(peopleGettingOff.size());
+        if (diffPeople == predictedDiffPeople) { // 
 
         }
-        int diffPeople = newNumPeople - numPeople;
 
     } else if () {
 

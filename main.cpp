@@ -131,6 +131,14 @@ void inputThread(){
         //Get the next person waiting
         Person next = nextInput(host);
 
+        std::cout << "INPUT: updating elevators" << std::endl;
+        for (auto &e : building.elevators)
+        {
+            std::string status = elevatorStatus(host, e.getName());
+            std::cout << "\nINPUT: " << status << std::endl;
+            e.updateStatus(status);
+        }
+
         //Get people until nobody else is coming
         while(next.getId() != "NONE") {
             //DEBUGnext.print();
