@@ -67,6 +67,35 @@ bool Elevator::inRange(int start, int end){
 
 /*
 -----------------------------------------------------------------------------
+Name: inRange
+Author: Josh Josey & Jaden Hicks
+Purpose: This function checks if the elevator is moving toward a floor
+Parameters: (int) floor
+Returns: (bool) true if in range, false if out of range
+-----------------------------------------------------------------------------
+*/
+bool Elevator::checkDirection(int floor){
+    //if the elevator is stationary and empty always return true
+    if (this->empty() && this->direction == 'S'){
+        return true;
+    }
+    //if the elevator is unloading on this floor
+    if(this->current == floor && this->direction == 'S'){
+        return true;
+    }
+    //if the floor is below the current and the elevator is moving down
+    if(this->current > floor && this->direction == 'D'){
+        return true;
+    }
+    //if the floor is above the current and the elevator is moving up
+    if(this->current < floor && this->direction == 'U'){
+        return true;
+    }
+    return false;
+}
+
+/*
+-----------------------------------------------------------------------------
 Name: setupBuilding
 Author: Jaden Hicks
 Purpose: This function reads in an input file and parses it to fill in a 

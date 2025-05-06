@@ -26,15 +26,17 @@ public:
     std::string getName() const { return name; }
     int getLowest() const { return lowest; }
     int getHighest() const { return highest; }
-    int getCurrent() const { return current; }
+    int getCurrentFloor() const { return current; }
     char getDirection() const { return direction; }
     int getNumPeople() const { return numPeople; }
     int getRemainingCapacity() const { return remainingCapacity; }
-    int getCapactiy() const { return capacity; }
+    int getMaxCapactiy() const { return capacity; }
+    bool empty() { return remainingCapacity == capacity; }
 
     int updateStatus(const std::string status);
     void decrementRemainingCapacity() { if (remainingCapacity > 0) remainingCapacity--; }
     bool inRange(int start, int end);
+    bool checkDirection(int floor);
 
 private:
     std::string name;       // elevatorID
