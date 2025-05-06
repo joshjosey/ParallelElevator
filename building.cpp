@@ -59,7 +59,7 @@ Returns: (bool) true if in range, false if out of range
 */
 bool Elevator::inRange(int start, int end){
     //if the person is starting in bounds
-    if ((start >= lowest) && (start <= highest) && (end >= lowest) && (end <= highest)){
+    if ((start >= this->lowest) && (start <= this->highest) && (end >= this->lowest) && (end <= this->highest)){
         return true;
     }
     return false;

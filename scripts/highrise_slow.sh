@@ -94,7 +94,7 @@ if test -f "scheduler_os"; then
 
   echo -e "Executing scheduler_os.\n\n"
   #Execute assignment_3 application.
-  ./scheduler_os "${inputFileDirectory}/${buildingFile}" &> "${simulationName}_user.log"
+  ./scheduler_os "${inputFileDirectory}/${buildingFile}" "$PORT" &> "${simulationName}_user.log"
 
 
 else
