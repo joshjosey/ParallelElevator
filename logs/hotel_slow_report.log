@@ -1,0 +1,47 @@
+----------  Runtime Data  ----------
+Program Start Time:                   Mon May  5 22:38:38 2025
+Simulation Start Time:                Mon May  5 22:38:39 2025
+Simulation End Time:                  Mon May  5 22:40:17 2025
+Total Time Steps:                     99
+Time Waiting for Simulation to Start: 0.9736604690551758
+Time Spent in Simulation:             98.01739525794983
+Total Time:                           98.991055727005
+
+----------  Elevator Data  ----------
+Elevator ID: HotelBayA
+	Elevator End Floor:      8
+	Elevator Occupant Count: 2
+Elevator ID: HotelBayB
+	Elevator End Floor:      6
+	Elevator Occupant Count: 4
+Elevator ID: HotelBayC
+	Elevator End Floor:      1
+	Elevator Occupant Count: 2
+Elevator ID: Conference
+	Elevator End Floor:      2
+	Elevator Occupant Count: 2
+
+----------  Person Data  ----------
+Total People: 10
+Person with Shortest Travel Time: Veronica
+	Elevator Bay: HotelBayB
+	Start Floor:  1
+	End Floor:    2
+	Start Time:   57
+	End Time:     76
+	Travel Time:  19
+Person with Longest Travel Time: Mike
+	Elevator Bay: HotelBayA
+	Start Floor:  1
+	End Floor:    8
+	Start Time:   40
+	End Time:     99
+	Travel Time:  59
+
+----------  Final Statistics  ----------
+Total People:                       10
+People Remaining in Queue:          0
+People Still Waiting for Elevator:  0
+People Remaining in Elevators:      0
+People Who Completed Their Journey: 10
+
