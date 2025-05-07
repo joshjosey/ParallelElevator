@@ -1,54 +1,54 @@
 ----------  Runtime Data  ----------
-Program Start Time:                   Tue May  6 16:24:38 2025
-Simulation Start Time:                Tue May  6 16:24:40 2025
-Simulation End Time:                  Tue May  6 16:42:31 2025
-Total Time Steps:                     1082
-Time Waiting for Simulation to Start: 1.5616786479949951
-Time Spent in Simulation:             1071.3737823963165
-Total Time:                           1072.9354610443115
+Program Start Time:                   Tue May  6 19:49:26 2025
+Simulation Start Time:                Tue May  6 19:49:28 2025
+Simulation End Time:                  Tue May  6 20:07:26 2025
+Total Time Steps:                     1089
+Time Waiting for Simulation to Start: 1.9655447006225586
+Time Spent in Simulation:             1078.6212813854218
+Total Time:                           1080.5868260860443
 
 ----------  Elevator Data  ----------
 Elevator ID: HighriseA
-	Elevator End Floor:      43
-	Elevator Occupant Count: 46
-Elevator ID: HighriseB
 	Elevator End Floor:      33
-	Elevator Occupant Count: 28
+	Elevator Occupant Count: 37
+Elevator ID: HighriseB
+	Elevator End Floor:      1
+	Elevator Occupant Count: 34
 Elevator ID: HighriseC
 	Elevator End Floor:      1
-	Elevator Occupant Count: 43
+	Elevator Occupant Count: 46
 Elevator ID: HighriseD
-	Elevator End Floor:      1
-	Elevator Occupant Count: 33
+	Elevator End Floor:      26
+	Elevator Occupant Count: 34
 Elevator ID: HighriseE
-	Elevator End Floor:      31
-	Elevator Occupant Count: 30
+	Elevator End Floor:      41
+	Elevator Occupant Count: 32
 Elevator ID: HighriseF
-	Elevator End Floor:      39
+	Elevator End Floor:      43
 	Elevator Occupant Count: 43
 Elevator ID: HighriseG
-	Elevator End Floor:      18
-	Elevator Occupant Count: 38
+	Elevator End Floor:      16
+	Elevator Occupant Count: 41
 Elevator ID: HighriseH
 	Elevator End Floor:      1
-	Elevator Occupant Count: 39
+	Elevator Occupant Count: 33
 
 ----------  Person Data  ----------
 Total People: 300
-Person with Shortest Travel Time: Jeffery
-	Elevator Bay: HighriseC
-	Start Floor:  2
+Person with Shortest Travel Time: Cole
+	Elevator Bay: HighriseD
+	Start Floor:  3
 	End Floor:    1
-	Start Time:   87
-	End Time:     105
-	Travel Time:  18
-Person with Longest Travel Time: Tammy
-	Elevator Bay: HighriseE
-	Start Floor:  1
-	End Floor:    31
-	Start Time:   161
-	End Time:     1039
-	Travel Time:  878
+	Start Time:   261
+	End Time:     280
+	Travel Time:  19
+Person with Longest Travel Time: Krystal
+	Elevator Bay: HighriseC
+	Start Floor:  36
+	End Floor:    5
+	Start Time:   143
+	End Time:     1012
+	Travel Time:  869
 
 ----------  Final Statistics  ----------
 Total People:                       300

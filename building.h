@@ -1,5 +1,13 @@
-// environment.h
-// Author: Jaden Hicks
+/*
+=============================================================================
+Title : building.h
+Description : A header file for building.cpp which defines the Elevator and
+              Building classes.
+Author : Jaden Hicks
+Date : 05/04/2025
+Version : 1.0
+=============================================================================
+*/
 
 #ifndef ENVIRONMENT_H
 #define ENVIRONMENT_H
@@ -28,11 +36,10 @@ public:
     char getDirection() const;
     int getNumPeople() const;
     int getRemainingCapacity() const;
-    int getMaxCapactiy() const;
+    int getMaxCapacity() const;
 
     /*Elevator functions prototypes*/
     int updateStatus(const std::string status);
-    void decrementRemainingCapacity() { if (remainingCapacity > 0) remainingCapacity--; }
     bool inRange(int start, int end);
     bool checkDirection(int floor);
     bool empty();
@@ -45,8 +52,7 @@ private:
     int current;            // current floor
     char direction;         // direction
     int numPeople;          // number of people in elevator
-    // std::vector<Person> people;
-    int remainingCapacity;  // local tracker of remaining capacity, including people already on elevator and assigned to it (not updated by API)
+    int remainingCapacity;  // remaining capacity
     int capacity;           // capacity
 };
 

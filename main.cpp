@@ -1,21 +1,22 @@
 /*
 =============================================================================
 Title : main.cpp
-Description : This program simulates an elevator operating system. It
-              communicates with a Flask API written by Dr. Eric Rees to read
-              in data and process it according to a ******* algorithm to
-              efficiently run the elevator system
+Description : This program communicates with a simulated elevator operating
+              system using a Flask API written by Dr. Eric Rees. It
+              implements a scheduling algorithm to run elevators efficiently.
 Author : Jaden Hicks & Josh Josey
 Date : 05/04/2025
 Version : 1.0
-Usage : Compile and run this program using the GNU C++ compiler
+Usage : Compile using make and run ./scheduler_os once API is running
+        Executable takes to command line arguments:
+        -   Filepath to building configuration file
+        -   Port that API is listening to
 Notes : -   This program requires that the API is running on the port provided
             as a command line argument
         -   Must be compiled with the -pthread -lcurl flags
 C++ Version : 11 or higher
 =============================================================================
 */
-//test
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -30,7 +31,6 @@ C++ Version : 11 or higher
 
 #include "building.h"
 #include "api_control.h"
-// #include "queue.h"
 
 //Function Prototypes
 void inputThread();
@@ -50,6 +50,7 @@ std::condition_variable io_cv;
 std::condition_variable schedule_cv;
 std::mutex mtx;
 
+// Author: Josh Josey & Jaden Hicks
 int main(int argc, char *argv[]) {
     if (argc != 3) {
         std::cerr << "ERROR: Not enough arguments\nUsage: " << argv[0] << " <path to input file> <port>" << std::endl;
@@ -118,14 +119,6 @@ void inputThread(){
         //Get the next person waiting
         Person next = nextInput(host);
 
-        // std::cout << "INPUT: updating elevators" << std::endl;
-        // for (auto &e : building.elevators)
-        // {
-        //     std::string status = elevatorStatus(host, e.getName());
-        //     std::cout << "\nINPUT: " << status << std::endl;
-        //     e.updateStatus(status);
-        // }
-
         //Get people until nobody else is coming
         while(next.getId() != "NONE") {
             //DEBUGnext.print();
@@ -134,7 +127,7 @@ void inputThread(){
             next = nextInput(host);
         }
 
-        //check if the simulation is complete
+        //Check if the simulation is complete
         status = simStatus(host);
         if(status == 3){
             std::cout << "INPUT: Simulation complete, terminating..." << std::endl;
@@ -169,13 +162,14 @@ void schedulerThread() {
         schedule_cv.wait(lock, [](){ 
             return (!people_q.empty() && output_q.empty()) || sim_complete_flag.load(); 
         });
-        //add the stragglers to the people_q
+
+        //Add the stragglers to the people_q
         if(!straggler_q.empty()){
             people_q.insert(people_q.begin(), straggler_q.begin(), straggler_q.end());
             straggler_q.clear();
         }
 
-        //update the elevators
+        //Update the elevators
         std::cout << "SCHEDULER: updating elevators" << std::endl;
         for (auto &e : building.elevators)
         {
@@ -192,7 +186,6 @@ void schedulerThread() {
             people_q.pop_front();
             int min = 999999;
             int min_idx = -1;
-            // Update the elevator status before assignment
             std::cout << "SCHEDULER: comparing elevators for " << p.getId() << " (" << p.getStart() << " -> " << p.getEnd() << ") " << std::endl;
             for(int i = 0; i < building.numElevators(); i++){
                 //check if it is in range and has capactiy
@@ -200,7 +193,7 @@ void schedulerThread() {
                     std::cout << "\tSCHEDULER: " << building.elevators[i].getName() << " cannot reach desired floor" << std::endl;
                     continue;
                 }
-                if ( building.elevators[i].getNumPeople() == building.elevators[i].getMaxCapactiy() ){
+                if ( building.elevators[i].getNumPeople() == building.elevators[i].getMaxCapacity() ){
                     std::cout << "\tSCHEDULER: " << building.elevators[i].getName() << " has no space" << std::endl;
                     continue;
                 }
@@ -218,16 +211,13 @@ void schedulerThread() {
             //Enqueue the best elevator OR requeue the person
             if(min_idx >= 0){
                 output_q.emplace_back(p.getId(), building.elevators[min_idx].getName());
-                // add person to elevator object
-                // building.elevators[min_idx].addPerson(p);
-                // decrement the remaining capacity of the elevator
-                // building.elevators[min_idx].decrementRemainingCapacity();
                 std::cout << "SCHEDULER: Queueing " << output_q.back().first << " ( " << p.getStart() << " -> " << p.getEnd() << ") " 
-                                                    << " on elevator " << output_q.back().second << " ( " << building.elevators[min_idx].getCurrentFloor() << " -> " << building.elevators[min_idx].getDirection() << ") "<< std::endl;
+                                                    << " on elevator " << output_q.back().second << " (" << building.elevators[min_idx].getCurrentFloor()
+                                                    << " -> " << building.elevators[min_idx].getDirection() << ") "<< std::endl;
             }
             else
             {
-                //add the people who could not get on an elevator to the straggler queue
+                //Add the people who could not get on an elevator to the straggler queue
                 straggler_q.push_back(p);
                 std::cout << "SCHEDULER: Could not find an elevator for " << p.getId() << " requeueing & updating elevators" << std::endl;
                 for (auto &e : building.elevators)
@@ -248,6 +238,7 @@ void schedulerThread() {
 
 void outputThread() {
     while(true) {
+        //Add people to elevators
         while(!output_q.empty()){
             std::string p_id = output_q.front().first;
             std::string e_id = output_q.front().second;
@@ -256,7 +247,7 @@ void outputThread() {
             std::cout << "OUTPUT: Placing " << p_id << " on elevator " << e_id << std::endl;
             addToElevator(host, p_id, e_id);
         }
-        //check if the simulation is complete
+        //Check if the simulation is complete
         if (sim_complete_flag.load() == true) {
             std::cout << "OUTPUT: Simulation complete, terminating..." << std::endl;
             schedule_cv.notify_one();
@@ -284,7 +275,7 @@ int calculateScore(Elevator e, Person p) {
 
     int end_direction_penalty = !e.checkDirection(p.getEnd()) ? (max_range) / 2 : 0;
 
-    int passenger_penalty = !e.empty() ? (e.getMaxCapactiy() - e.getRemainingCapacity()) * 5 : 0;
+    int passenger_penalty = !e.empty() ? (e.getNumPeople()) * 5 : 0;
 
     return distance_penalty + start_direction_penalty + end_direction_penalty + passenger_penalty;
 }

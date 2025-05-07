@@ -1,5 +1,12 @@
-// environment.cpp
-// Author: Jaden Hicks
+/*
+=============================================================================
+Title : building.cpp
+Description : Implements functions for elevator and building classes.
+Author : Jaden Hicks
+Date : 05/04/2025
+Version : 1.0
+=============================================================================
+*/
 
 #include <iostream>
 #include <fstream>
@@ -17,10 +24,7 @@ int Elevator::getCurrentFloor() const { return this->current; }
 char Elevator::getDirection() const { return this->direction; }
 int Elevator::getNumPeople() const { return numPeople; }
 int Elevator::getRemainingCapacity() const { return remainingCapacity; }
-int Elevator::getMaxCapactiy() const { return capacity; }
-
-
-
+int Elevator::getMaxCapacity() const { return capacity; }
 
 
 bool Elevator::empty() { return numPeople == 0; }
@@ -54,32 +58,6 @@ int Elevator::updateStatus(const std::string status) {
     direction = dir[0];
     numPeople = std::stoi(numP);
     remainingCapacity = std::stoi(remainingCap);
-    // if (newCur != current) { // elevator moved or changing direction
-    //     int minFloor = std::min(newCur, current);
-    //     int maxFloor = (minFloor == newCur) ? current : newCur;
-    //     int diffPeople = newNumPeople - numPeople;
-    //     std::vector<int> peopleGettingOn;
-    //     std::vector<int> peopleGettingOff;
-    //     for (auto &p : people) {
-    //         if (p.getStart() >= minFloor && p.getEnd() <= maxFloor) {
-    //             if (!p.onElevator())
-    //                 peopleGettingOn.emplace_back(p.getId());
-    //             else
-    //                 peopleGettingOff.emplace_back(p.getId());
-    //         }
-    //     }
-    //     int predictedDiffPeople = static_cast<int>(peopleGettingOn.size()) - static_cast<int>(peopleGettingOff.size());
-    //     if (diffPeople == predictedDiffPeople) { // 
-    //     }
-    // }
-    // if (newNumPeople < numPeople) { // check if people got off elevator
-    //     remainingCapacity += numPeople - newNumPeople; // increase remaining capacity
-    //     if (remainingCapacity > capacity) {
-    //         std::cout << "ERROR: elevator remaining capacity greater than capacity! Should not be possible." << std::endl;
-    //         remainingCapacity = capacity;
-    //     }
-    // }
-    // numPeople = newNumPeople;
     if (direction == 'E')
         return 1;
     return 0;
@@ -106,7 +84,7 @@ bool Elevator::inRange(int start, int end){
 /*
 -----------------------------------------------------------------------------
 Name: inRange
-Author: Josh Josey & Jaden Hicks
+Author: Josh Josey
 Purpose: This function checks if the elevator is moving toward a floor
 Parameters: (int) floor
 Returns: (bool) true if in range, false if out of range

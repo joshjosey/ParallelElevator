@@ -1,0 +1,16 @@
+Selected port: 5941
+
+
+Final Project Test Script - Highrise Busy.
+
+Running the following commands:
+   make clean &> make.log
+   rm -f scheduler_os highrise_busy_server.log highrise_busy_user.log highrise_busy_report.log
+   make &>> make.log
+
+
+Make successful! Booting up the Elevator Operating System.
+Flask API is up!
+Executing scheduler_os.
+
+
