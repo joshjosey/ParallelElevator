@@ -1,5 +1,12 @@
-// environment.cpp
-// Author: Jaden Hicks
+/*
+=============================================================================
+Title : building.cpp
+Description : Implements functions for elevator and building classes.
+Author : Jaden Hicks
+Date : 05/04/2025
+Version : 1.0
+=============================================================================
+*/
 
 #include <iostream>
 #include <fstream>
@@ -7,9 +14,25 @@
 #include <vector>
 #include <algorithm>
 #include <string>
-
 #include "building.h"
 
+/*Get functions for the elevator*/
+std::string Elevator::getName() const { return this->name; }
+int Elevator::getLowestFloor() const { return this->lowest; }
+int Elevator::getHighestFloor() const { return this->highest; }
+int Elevator::getCurrentFloor() const { return this->current; }
+char Elevator::getDirection() const { return this->direction; }
+int Elevator::getNumPeople() const { return numPeople; }
+int Elevator::getRemainingCapacity() const { return remainingCapacity; }
+int Elevator::getMaxCapacity() const { return capacity; }
+
+
+bool Elevator::empty() { return numPeople == 0; }
+void Elevator::print(){
+    std::cout << name << " | Lowest = " << lowest << " | Highest = " << highest << " | Current = " << current
+              << " | Direction " << direction << " | NumPeople " << numPeople << " | RemainingCapacitiy "
+              << remainingCapacity << " | Capacity " << capacity << std::endl;
+}
 /*
 -----------------------------------------------------------------------------
 Name: updateStatus
@@ -33,15 +56,8 @@ int Elevator::updateStatus(const std::string status) {
     }
     current = std::stoi(cur);
     direction = dir[0];
-    int newNumPeople = std::stoi(numP);
-    if (newNumPeople < numPeople) { // check if people got off elevator
-        remainingCapacity += numPeople - newNumPeople; // increase remaining capacity
-        if (remainingCapacity > capacity) {
-            std::cout << "ERROR: elevator remaining capacity greater than capacity! Should not be possible." << std::endl;
-            remainingCapacity = capacity;
-        }
-    }
-    numPeople = newNumPeople;
+    numPeople = std::stoi(numP);
+    remainingCapacity = std::stoi(remainingCap);
     if (direction == 'E')
         return 1;
     return 0;
@@ -59,7 +75,36 @@ Returns: (bool) true if in range, false if out of range
 */
 bool Elevator::inRange(int start, int end){
     //if the person is starting in bounds
-    if ((start >= lowest) && (start <= highest) && (end >= lowest) && (end <= highest)){
+    if ((start >= this->lowest) && (start <= this->highest) && (end >= this->lowest) && (end <= this->highest)){
+        return true;
+    }
+    return false;
+}
+
+/*
+-----------------------------------------------------------------------------
+Name: inRange
+Author: Josh Josey
+Purpose: This function checks if the elevator is moving toward a floor
+Parameters: (int) floor
+Returns: (bool) true if in range, false if out of range
+-----------------------------------------------------------------------------
+*/
+bool Elevator::checkDirection(int floor){
+    //if the elevator is stationary and empty always return true
+    if (this->empty() && this->direction == 'S'){
+        return true;
+    }
+    //if the elevator is unloading on this floor
+    if(this->current == floor && this->direction == 'S'){
+        return true;
+    }
+    //if the floor is below the current and the elevator is moving down
+    if(this->current > floor && this->direction == 'D'){
+        return true;
+    }
+    //if the floor is above the current and the elevator is moving up
+    if(this->current < floor && this->direction == 'U'){
         return true;
     }
     return false;

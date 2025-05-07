@@ -1,5 +1,13 @@
-// environment.h
-// Author: Jaden Hicks
+/*
+=============================================================================
+Title : building.h
+Description : A header file for building.cpp which defines the Elevator and
+              Building classes.
+Author : Jaden Hicks
+Date : 05/04/2025
+Version : 1.0
+=============================================================================
+*/
 
 #ifndef ENVIRONMENT_H
 #define ENVIRONMENT_H
@@ -8,33 +16,34 @@
 #include <sstream>
 #include <vector>
 
+#include "api_control.h"
+
 class Elevator {
 //Purpose: This class is used to store the elevator data returned from the API and track the elevators.
 //Author: Jaden Hicks & Josh Josey
 public:
+    /*Constructors*/
     Elevator() : name(""), lowest(-1), highest(-1), current(-1), direction('S'), numPeople(0), remainingCapacity(-1), capacity(-1) {}
 
     Elevator(const std::string &name, int lowest, int highest, int current, int capacity)
         : name(name), lowest(lowest), highest(highest), current(current), direction('S'), numPeople(0), remainingCapacity(capacity), capacity(capacity) {}
 
-    void print(){
-        std::cout << name << " | Lowest = " << lowest << " | Highest = " << highest << " | Current = " << current
-                  << " | Direction " << direction << " | NumPeople " << numPeople << " | RemainingCapacitiy "
-                  << remainingCapacity << " | Capacity " << capacity << std::endl;
-    }
+    /*Getter function prototypes*/
+    std::string getName() const;
+    int getLowestFloor() const;
+    int getHighestFloor() const;
+    int getCurrentFloor() const;
+    char getDirection() const;
+    int getNumPeople() const;
+    int getRemainingCapacity() const;
+    int getMaxCapacity() const;
 
-    std::string getName() const { return name; }
-    int getLowest() const { return lowest; }
-    int getHighest() const { return highest; }
-    int getCurrent() const { return current; }
-    char getDirection() const { return direction; }
-    int getNumPeople() const { return numPeople; }
-    int getRemainingCapacity() const { return remainingCapacity; }
-    int getCapactiy() const { return capacity; }
-
+    /*Elevator functions prototypes*/
     int updateStatus(const std::string status);
-    void decrementRemainingCapacity() { if (remainingCapacity > 0) remainingCapacity--; }
     bool inRange(int start, int end);
+    bool checkDirection(int floor);
+    bool empty();
+    void print();
 
 private:
     std::string name;       // elevatorID
@@ -43,7 +52,7 @@ private:
     int current;            // current floor
     char direction;         // direction
     int numPeople;          // number of people in elevator
-    int remainingCapacity;  // local tracker of remaining capacity, including people already on elevator and assigned to it (not updated by API)
+    int remainingCapacity;  // remaining capacity
     int capacity;           // capacity
 };
 

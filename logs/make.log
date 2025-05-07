@@ -1,0 +1,1 @@
+g++ main.cpp building.cpp api_control.cpp -o scheduler_os -pthread -lcurl

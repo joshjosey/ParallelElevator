@@ -1,27 +1,29 @@
 /*
 =============================================================================
 Title : main.cpp
-Description : This program simulates an elevator operating system. It
-              communicates with a Flask API written by Dr. Eric Rees to read
-              in data and process it according to a ******* algorithm to
-              efficiently run the elevator system
+Description : This program communicates with a simulated elevator operating
+              system using a Flask API written by Dr. Eric Rees. It
+              implements a scheduling algorithm to run elevators efficiently.
 Author : Jaden Hicks & Josh Josey
 Date : 05/04/2025
 Version : 1.0
-Usage : Compile and run this program using the GNU C++ compiler
+Usage : Compile using make and run ./scheduler_os once API is running
+        Executable takes to command line arguments:
+        -   Filepath to building configuration file
+        -   Port that API is listening to
 Notes : -   This program requires that the API is running on the port provided
             as a command line argument
         -   Must be compiled with the -pthread -lcurl flags
 C++ Version : 11 or higher
 =============================================================================
 */
-//test
 #include <iostream>
 #include <fstream>
 #include <vector>
 
 #include <chrono>
 #include <thread>
+#include <condition_variable>
 #include <atomic>
 #include <curl/curl.h>
 #include <chrono>
@@ -29,13 +31,12 @@ C++ Version : 11 or higher
 
 #include "building.h"
 #include "api_control.h"
-// #include "queue.h"
 
 //Function Prototypes
 void inputThread();
 void schedulerThread();
 void outputThread();
-bool inRange(Elevator, Person);
+int calculateScore(Elevator e, Person p);
 
 //Global Variables
 std::string host;
@@ -45,7 +46,11 @@ std::deque<std::pair<std::string,std::string>> output_q; //always push as (perso
 
 //Synchonization Variables
 std::atomic<bool> sim_complete_flag(false);
+std::condition_variable io_cv;
+std::condition_variable schedule_cv;
+std::mutex mtx;
 
+// Author: Josh Josey & Jaden Hicks
 int main(int argc, char *argv[]) {
     if (argc != 3) {
         std::cerr << "ERROR: Not enough arguments\nUsage: " << argv[0] << " <path to input file> <port>" << std::endl;
@@ -89,25 +94,16 @@ int main(int argc, char *argv[]) {
         exit(1);
     };
 
-    // // TESTS
-	// //check the status of an elevator
-    // for (int i=0; i<building.numElevators(); i++)
-    //     elevatorStatus(host, building.elevators[i].getName());
-    // //see if you can get the next person
-    // Person test(nextInput(host));
-    // test.print();
-    // //see if you can add someone to an elevator
-    // addToElevator(host, test.getId(), building.elevators[0].getName());
-    // std::this_thread::sleep_for(std::chrono::seconds(2));
-	// //check the status of an elevator
-    // for (int i=0; i<building.numElevators(); i++)
-    //     elevatorStatus(host, building.elevators[i].getName());
-    
-    //start input thread
-    inputThread();
+    //start the threads
+    std::thread inp_thread(inputThread);
+    std::thread schedule_thread(schedulerThread);
+    std::thread outp_thread(outputThread);
+    inp_thread.join();
+    schedule_thread.join();
+    outp_thread.join();
 
-    //ensure the API stopped
-	simStatus(host);
+
+    // ensure the API stopped
 	simulationControl(host,"stop");
 	simStatus(host);
 
@@ -120,59 +116,121 @@ int main(int argc, char *argv[]) {
 void inputThread(){
     int status = simStatus(host);
     while(true){
-        for (auto &e : building.elevators) {
-            std::string status = elevatorStatus(host, e.getName());
-            e.updateStatus(status);
-            e.print();
-        }
         //Get the next person waiting
         Person next = nextInput(host);
-        //if there is no one waiting to be added then sleep
-        if (next.getId() != "NONE") {
-            //DEBUGnext.print();
-            people_q.push_back(next);
-        } else {
-            //check if the simulation is complete
-            status = simStatus(host);
 
-            if(status == 3){
-                sim_complete_flag.store(true);
-                return;
-            }
-            //DEBUGstd::cout << "INPUT: Nobody waiting to board an elevator, going to sleep" << std::endl;
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+        //Get people until nobody else is coming
+        while(next.getId() != "NONE") {
+            //DEBUGnext.print();
+            std::cout << "\tINPUT: Adding " << next.getId() << " to the people q " << std::endl;
+            people_q.push_back(next);
+            next = nextInput(host);
+        }
+
+        //Check if the simulation is complete
+        status = simStatus(host);
+        if(status == 3){
+            std::cout << "INPUT: Simulation complete, terminating..." << std::endl;
+            sim_complete_flag.store(true);
+            schedule_cv.notify_one();
+            return;
+        }
+
+        //If there is any data then wake the other threads then go to sleep, otherwise wait a second and retry
+        if(!people_q.empty()){
+            std::unique_lock<std::mutex> lock(mtx);
+            std::cout << "INPUT: People waiting to board waking the scheduler, going to sleep..." << std::endl;
+            schedule_cv.notify_one();
+            io_cv.wait(lock, []()
+                       { return people_q.empty()  || sim_complete_flag.load(); });
+            std::cout << "INPUT: Checking for passengers" << std::endl;
+
+        } else{
+            std::cout << "\tINPUT: Nobody waiting to board an elevator, waiting to retry" << std::endl;
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         }
     }
 }
 
 void schedulerThread() {
+    std::deque<Person> straggler_q;
     while(true){
-        //Update the elevator status before assignment
-        for(auto& e : building.elevators){
+        //Wait for the other threads to be complete
+        std::unique_lock<std::mutex> lock(mtx);
+        std::cout << "SCHEDULER: Going to sleep..." << std::endl;
+        io_cv.notify_all();
+        schedule_cv.wait(lock, [](){ 
+            return (!people_q.empty() && output_q.empty()) || sim_complete_flag.load(); 
+        });
+
+        //Add the stragglers to the people_q
+        if(!straggler_q.empty()){
+            people_q.insert(people_q.begin(), straggler_q.begin(), straggler_q.end());
+            straggler_q.clear();
+        }
+
+        //Update the elevators
+        std::cout << "SCHEDULER: updating elevators" << std::endl;
+        for (auto &e : building.elevators)
+        {
             std::string status = elevatorStatus(host, e.getName());
             e.updateStatus(status);
+            std::cout << "\tSCHEDULER: ";
+            e.print();
         }
-        //WHILE PERSON QUEUE IS NOT EMPTY
-        {
-            Person p;
-            //Check each elevator to find the best one
-            for(int i = 0; i < building.numElevators(); i++){
-                int min = 0;
-                std::string status = elevatorStatus(host, building.elevators[i].getName());
-                building.elevators[i].updateStatus(status);
 
+        //Assign each person to an elevator
+        std::cout << "SCHEDULER: assigning people to elevators" << std::endl;
+        while(!people_q.empty()){
+            Person p(people_q.front());
+            people_q.pop_front();
+            int min = 999999;
+            int min_idx = -1;
+            std::cout << "SCHEDULER: comparing elevators for " << p.getId() << " (" << p.getStart() << " -> " << p.getEnd() << ") " << std::endl;
+            for(int i = 0; i < building.numElevators(); i++){
                 //check if it is in range and has capactiy
-                if( !building.elevators[i].inRange(p.getStart(), p.getEnd()) || (building.elevators[i].getRemainingCapacity() == 0) ){
+                if ( !building.elevators[i].inRange(p.getStart(), p.getEnd()) ){
+                    std::cout << "\tSCHEDULER: " << building.elevators[i].getName() << " cannot reach desired floor" << std::endl;
                     continue;
                 }
-                //Calculate that elevators score
-                
+                if ( building.elevators[i].getNumPeople() == building.elevators[i].getMaxCapacity() ){
+                    std::cout << "\tSCHEDULER: " << building.elevators[i].getName() << " has no space" << std::endl;
+                    continue;
+                }
+
+                //Add together the penalties & rewards to find the score
+                int score = calculateScore(building.elevators[i], p);
+                std::cout << "\tSCHEDULER: " << building.elevators[i].getName() << " has a score of " << score << std::endl;
+
+                //See if it is the lowest score
+                if(score < min){
+                    min = score;
+                    min_idx = i;
+                }
             }
             //Enqueue the best elevator OR requeue the person
-            //decrement rem cap
+            if(min_idx >= 0){
+                output_q.emplace_back(p.getId(), building.elevators[min_idx].getName());
+                std::cout << "SCHEDULER: Queueing " << output_q.back().first << " ( " << p.getStart() << " -> " << p.getEnd() << ") " 
+                                                    << " on elevator " << output_q.back().second << " (" << building.elevators[min_idx].getCurrentFloor()
+                                                    << " -> " << building.elevators[min_idx].getDirection() << ") "<< std::endl;
+            }
+            else
+            {
+                //Add the people who could not get on an elevator to the straggler queue
+                straggler_q.push_back(p);
+                std::cout << "SCHEDULER: Could not find an elevator for " << p.getId() << " requeueing & updating elevators" << std::endl;
+                for (auto &e : building.elevators)
+                {
+                    std::string status = elevatorStatus(host, e.getName());
+                    e.updateStatus(status);
+                }
+            }
         }
-        //SIGNAL THE OTHER THREADS AND GO TO SLEEP
+        //If the simulation is complete, wake the remaining threads and terminate
         if(sim_complete_flag.load() == true ){
+            std::cout << "SCHEDULER: Simulation complete, terminating..." << std::endl;
+            io_cv.notify_all();
             return;
         }
     }
@@ -180,15 +238,44 @@ void schedulerThread() {
 
 void outputThread() {
     while(true) {
-        std::string p_id = output_q.front().first;
-        std::string e_id = output_q.front().second;
-        output_q.pop_front();
-        
-        addToElevator(host, p_id, e_id);
+        //Add people to elevators
+        while(!output_q.empty()){
+            std::string p_id = output_q.front().first;
+            std::string e_id = output_q.front().second;
+            output_q.pop_front();
 
+            std::cout << "OUTPUT: Placing " << p_id << " on elevator " << e_id << std::endl;
+            addToElevator(host, p_id, e_id);
+        }
+        //Check if the simulation is complete
         if (sim_complete_flag.load() == true) {
+            std::cout << "OUTPUT: Simulation complete, terminating..." << std::endl;
+            schedule_cv.notify_one();
             return;
+        }
+        //Wake the other threads then go to sleep
+        {
+            std::unique_lock<std::mutex> lock(mtx);
+            std::cout << "OUTPUT: All passengers placed, going to sleep..." << std::endl;
+            schedule_cv.notify_one();
+            io_cv.wait(lock, [](){ return !output_q.empty() || sim_complete_flag.load(); });
         }
     }
 }
 
+/*
+Authors: Josh Josey, refactored by copilot
+*/
+int calculateScore(Elevator e, Person p) {
+    int max_range = e.getHighestFloor() - e.getLowestFloor();
+
+    int distance_penalty = abs(e.getCurrentFloor() - p.getStart());
+
+    int start_direction_penalty = !e.checkDirection(p.getStart()) ? (max_range) / 2 : 0;
+
+    int end_direction_penalty = !e.checkDirection(p.getEnd()) ? (max_range) / 2 : 0;
+
+    int passenger_penalty = !e.empty() ? (e.getNumPeople()) * 5 : 0;
+
+    return distance_penalty + start_direction_penalty + end_direction_penalty + passenger_penalty;
+}

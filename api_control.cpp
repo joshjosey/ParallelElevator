@@ -17,7 +17,7 @@ C++ Version : 11 or higher
 #include <curl/curl.h>
 #include <sstream>
 #include "api_control.h"
-
+#define DEBUG 0
 
 /*
 -----------------------------------------------------------------------------
@@ -45,7 +45,7 @@ int simStatus(std::string host){
 		curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "GET");
 
         curl_easy_perform(curl);
-		std::cout << url << "\tGET -> " << response.str() << std::endl;
+		if(DEBUG)std::cout << url << "\tGET -> " << response.str() << std::endl;
 
         curl_easy_cleanup(curl);
 		
@@ -82,19 +82,11 @@ void simulationControl(std::string host, const std::string command){
         curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, ResponseBuffer::writeCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-        if(command == "start" || command == "stop"){
-            curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
-        }else{
-            curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "GET");
-        }
+		curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
 
         curl_easy_perform(curl);
 
-		if(command == "start" || command == "stop"){
-			std::cout << url << "\tPUT -> " << response.str() << std::endl;
-		}else{
-			std::cout << url << "\tGET -> " << response.str() << std::endl;
-		}
+		if(DEBUG)std::cout << url << "\tPUT -> " << response.str() << std::endl;
 
         curl_easy_cleanup(curl);
 	}
@@ -104,7 +96,7 @@ void simulationControl(std::string host, const std::string command){
 /*
 -----------------------------------------------------------------------------
 Name: elevatorStatus
-Author: Josh Josey
+Author: Josh Josey & Jaden Hicks
 Purpose: This function sends either GET request to check and print the 
 		 status of a specific elevator
 Parameters: host - the host and port of the API
@@ -127,7 +119,7 @@ std::string elevatorStatus(std::string host, const std::string elevator_id){
 
         curl_easy_perform(curl);
 
-        std::cout << url << "\tGET -> " << response.str() << std::endl;
+        if(DEBUG)std::cout << url << "\tGET -> " << response.str() << std::endl;
 
         curl_easy_cleanup(curl);
 
@@ -164,7 +156,7 @@ Person nextInput(std::string host){
 
         curl_easy_perform(curl);
 
-        std::cout << url << "\tGET -> " << response.str() << std::endl;
+        if(DEBUG)std::cout << url << "\tGET -> " << response.str() << std::endl;
 		
 		//The response should always be ID Start End Timestamp
 		if(response.str() != "NONE"){
@@ -204,7 +196,7 @@ void addToElevator(std::string host, std::string person_id, std::string elevator
         curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "PUT");
 
         curl_easy_perform(curl);
-        std::cout << url << "\tPUT -> " << response.str() << std::endl;
+        if(DEBUG)std::cout << url << "\tPUT -> " << response.str() << std::endl;
 
         curl_easy_cleanup(curl);
 	}

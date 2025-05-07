@@ -1,0 +1,59 @@
+----------  Runtime Data  ----------
+Program Start Time:                   Tue May  6 19:49:26 2025
+Simulation Start Time:                Tue May  6 19:49:28 2025
+Simulation End Time:                  Tue May  6 20:07:26 2025
+Total Time Steps:                     1089
+Time Waiting for Simulation to Start: 1.9655447006225586
+Time Spent in Simulation:             1078.6212813854218
+Total Time:                           1080.5868260860443
+
+----------  Elevator Data  ----------
+Elevator ID: HighriseA
+	Elevator End Floor:      33
+	Elevator Occupant Count: 37
+Elevator ID: HighriseB
+	Elevator End Floor:      1
+	Elevator Occupant Count: 34
+Elevator ID: HighriseC
+	Elevator End Floor:      1
+	Elevator Occupant Count: 46
+Elevator ID: HighriseD
+	Elevator End Floor:      26
+	Elevator Occupant Count: 34
+Elevator ID: HighriseE
+	Elevator End Floor:      41
+	Elevator Occupant Count: 32
+Elevator ID: HighriseF
+	Elevator End Floor:      43
+	Elevator Occupant Count: 43
+Elevator ID: HighriseG
+	Elevator End Floor:      16
+	Elevator Occupant Count: 41
+Elevator ID: HighriseH
+	Elevator End Floor:      1
+	Elevator Occupant Count: 33
+
+----------  Person Data  ----------
+Total People: 300
+Person with Shortest Travel Time: Cole
+	Elevator Bay: HighriseD
+	Start Floor:  3
+	End Floor:    1
+	Start Time:   261
+	End Time:     280
+	Travel Time:  19
+Person with Longest Travel Time: Krystal
+	Elevator Bay: HighriseC
+	Start Floor:  36
+	End Floor:    5
+	Start Time:   143
+	End Time:     1012
+	Travel Time:  869
+
+----------  Final Statistics  ----------
+Total People:                       300
+People Remaining in Queue:          0
+People Still Waiting for Elevator:  0
+People Remaining in Elevators:      0
+People Who Completed Their Journey: 300
+
