@@ -50,7 +50,7 @@ public:
     std::string getId() const { return id; }
     int getStart() const { return start;  }
     int getEnd() const { return end; }
-    bool onElevator() const { return onElevator; }
+    bool getOnElevator() const { return onElevator; }
 
 private:
     std::string id;

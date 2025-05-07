@@ -32,10 +32,10 @@ public:
     char getDirection() const { return direction; }
     int getNumPeople() const { return numPeople; }
     int getRemainingCapacity() const { return remainingCapacity; }
-    int getMaxCapactiy() const { return capacity; }
+    int getMaxCapacity() const { return capacity; }
     bool empty() { return remainingCapacity == capacity; }
 
-    void addPerson(Person p) { people.emplace_back(p); }
+    // void addPerson(Person p) { people.emplace_back(p); }
     int updateStatus(const std::string status);
     void decrementRemainingCapacity() { if (remainingCapacity > 0) remainingCapacity--; }
     bool inRange(int start, int end);
@@ -48,7 +48,7 @@ private:
     int current;            // current floor
     char direction;         // direction
     int numPeople;          // number of people in elevator
-    std::vector<Person> people;
+    // std::vector<Person> people;
     int remainingCapacity;  // local tracker of remaining capacity, including people already on elevator and assigned to it (not updated by API)
     int capacity;           // capacity
 };

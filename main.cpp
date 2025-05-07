@@ -131,13 +131,13 @@ void inputThread(){
         //Get the next person waiting
         Person next = nextInput(host);
 
-        std::cout << "INPUT: updating elevators" << std::endl;
-        for (auto &e : building.elevators)
-        {
-            std::string status = elevatorStatus(host, e.getName());
-            std::cout << "\nINPUT: " << status << std::endl;
-            e.updateStatus(status);
-        }
+        // std::cout << "INPUT: updating elevators" << std::endl;
+        // for (auto &e : building.elevators)
+        // {
+        //     std::string status = elevatorStatus(host, e.getName());
+        //     std::cout << "\nINPUT: " << status << std::endl;
+        //     e.updateStatus(status);
+        // }
 
         //Get people until nobody else is coming
         while(next.getId() != "NONE") {
@@ -235,7 +235,7 @@ void schedulerThread() {
 
                 //Get the penalty for having passengers
                 if(!building.elevators[i].empty()){
-                    passenger_penalty = 7 + (building.elevators[i].getMaxCapactiy() - building.elevators[i].getRemainingCapacity()) * 2;
+                    passenger_penalty = 7 + (building.elevators[i].getMaxCapacity() - building.elevators[i].getRemainingCapacity()) * 2;
                 }
 
                 //Add together the penalties & rewards to find the score
@@ -252,9 +252,9 @@ void schedulerThread() {
             if(min_idx >= 0){
                 output_q.emplace_back(p.getId(), building.elevators[min_idx].getName());
                 // add person to elevator object
-                building.elevators[min_idx].addPerson(p);
-                //decrement the remaining capacity of the elevator
-                building.elevators[min_idx].decrementRemainingCapacity();
+                // building.elevators[min_idx].addPerson(p);
+                // decrement the remaining capacity of the elevator
+                // building.elevators[min_idx].decrementRemainingCapacity();
                 std::cout << "SCHEDULER: Queueing " << output_q.back().first << " ( " << p.getStart() << " -> " << p.getEnd() << ") " 
                                                     << " on elevator " << output_q.back().second << " ( " << building.elevators[min_idx].getCurrentFloor() << " -> " << building.elevators[min_idx].getDirection() << ") "<< std::endl;
             }

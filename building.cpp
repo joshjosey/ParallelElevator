@@ -31,39 +31,36 @@ int Elevator::updateStatus(const std::string status) {
         std::cout << "ERROR: Invalid status: " << status << "\n";
         return 1;
     }
-    int newCur = std::stoi(cur);
-    char newDir = dir[0];
-    int newNumPeople = std::stoi(numP);
-    if (newCur != current) { // elevator moved or changing direction
-        int minFloor = std::min(newCur, current);
-        int maxFloor = (minFloor == newCur) ? current : newCur;
-        int diffPeople = newNumPeople - numPeople;
-        std::vector<int> peopleGettingOn;
-        std::vector<int> peopleGettingOff;
-        for (auto &p : people) {
-            if (p.getStart() >= minFloor && p.getEnd() <= maxFloor) {
-                if (!p.onElevator())
-                    peopleGettingOn.emplace_back(p.getId());
-                else
-                    peopleGettingOff.emplace_back(p.getId());
-            }
-        }
-        int predictedDiffPeople = static_cast<int>(peopleGettingOn.size()) - static_cast<int>(peopleGettingOff.size());
-        if (diffPeople == predictedDiffPeople) { // 
-
-        }
-
-    } else if () {
-
-    }
-    if (newNumPeople < numPeople) { // check if people got off elevator
-        remainingCapacity += numPeople - newNumPeople; // increase remaining capacity
-        if (remainingCapacity > capacity) {
-            std::cout << "ERROR: elevator remaining capacity greater than capacity! Should not be possible." << std::endl;
-            remainingCapacity = capacity;
-        }
-    }
-    numPeople = newNumPeople;
+    current = std::stoi(cur);
+    direction = dir[0];
+    numPeople = std::stoi(numP);
+    remainingCapacity = std::stoi(remainingCap);
+    // if (newCur != current) { // elevator moved or changing direction
+    //     int minFloor = std::min(newCur, current);
+    //     int maxFloor = (minFloor == newCur) ? current : newCur;
+    //     int diffPeople = newNumPeople - numPeople;
+    //     std::vector<int> peopleGettingOn;
+    //     std::vector<int> peopleGettingOff;
+    //     for (auto &p : people) {
+    //         if (p.getStart() >= minFloor && p.getEnd() <= maxFloor) {
+    //             if (!p.onElevator())
+    //                 peopleGettingOn.emplace_back(p.getId());
+    //             else
+    //                 peopleGettingOff.emplace_back(p.getId());
+    //         }
+    //     }
+    //     int predictedDiffPeople = static_cast<int>(peopleGettingOn.size()) - static_cast<int>(peopleGettingOff.size());
+    //     if (diffPeople == predictedDiffPeople) { // 
+    //     }
+    // }
+    // if (newNumPeople < numPeople) { // check if people got off elevator
+    //     remainingCapacity += numPeople - newNumPeople; // increase remaining capacity
+    //     if (remainingCapacity > capacity) {
+    //         std::cout << "ERROR: elevator remaining capacity greater than capacity! Should not be possible." << std::endl;
+    //         remainingCapacity = capacity;
+    //     }
+    // }
+    // numPeople = newNumPeople;
     if (direction == 'E')
         return 1;
     return 0;
